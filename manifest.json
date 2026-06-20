@@ -1,7 +1,8 @@
 {
   "name": "Training App",
   "short_name": "Training",
-  "start_url": "./index.html",
+  "start_url": "/training-app/index.html",
+  "scope": "/training-app/",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
@@ -10,7 +11,8 @@
     {
       "src": "icon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
