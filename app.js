@@ -562,6 +562,9 @@ function navigateTo(pageId) {
   } else {
     content.innerHTML = `<p style="color:#888;">Sezione in costruzione.</p>`;
   }
+
+  window.schermataCorrente = { tipo: "tab", pagina: pageId };
+  aggiornaCronologia();
 }
 
 document.querySelectorAll(".nav-btn").forEach(btn => {
@@ -609,6 +612,7 @@ function apriScheda(id, ripristinaScroll) {
   const content = document.getElementById("content");
   const isPalestra = s.tipo === "palestra";
   const inModifica = isPalestra && window.modificaOrdineId === id;
+  window.schermataCorrente = { tipo: "scheda", id: id };
 
   const risultato = costruisciAttivi(id, s);
   const attivi = risultato.attivi;
@@ -625,6 +629,7 @@ function apriScheda(id, ripristinaScroll) {
   if (inModifica) {
     content.innerHTML = renderModificaOrdine(id, s, attivi);
     content.scrollTop = 0;
+    aggiornaCronologia();
     return;
   }
 
@@ -700,6 +705,7 @@ function apriScheda(id, ripristinaScroll) {
 
   // Se si torna dalla guida, riporta alla stessa posizione; altrimenti in cima
   content.scrollTop = ripristinaScroll && window.scrollPrimaGuida ? window.scrollPrimaGuida : 0;
+  aggiornaCronologia();
 }
 
 // Argomento sicuro (anche con apostrofi e virgolette) dentro un onclick="..."
@@ -1158,7 +1164,7 @@ function secondiDaStringa(str) {
 // ─────────────────────────────────────────
 
 // Versione dell'app (si vede in fondo al Profilo)
-const APP_VERSION = "2.3";
+const APP_VERSION = "2.4";
 
 // Il nome senza l'eventuale ★ identifica l'esercizio: togliere la stella in futuro non fa perdere i pesi
 function chiaveEsercizio(nome) {
@@ -1422,6 +1428,8 @@ function chiudiSessione(schedaId) {
     content.innerHTML = formHtml;
     document.getElementById("page-title").textContent = s.nome;
     document.getElementById("page-subtitle").textContent = "Statistiche";
+    window.schermataCorrente = { tipo: "formCorsa", schedaId: schedaId };
+    aggiornaCronologia();
     return;
   }
 
@@ -1638,6 +1646,8 @@ function apriDettaglioLog(dataISO, schedaId) {
 
   document.getElementById("page-title").textContent = "Log";
   document.getElementById("page-subtitle").textContent = sessione.nome;
+  window.schermataCorrente = { tipo: "dettaglioLog" };
+  aggiornaCronologia();
 }
 
 // ─────────────────────────────────────────
@@ -1747,6 +1757,8 @@ function apriGiornoLog(dataStr) {
   content.innerHTML = html;
   document.getElementById("page-title").textContent = "Log";
   document.getElementById("page-subtitle").textContent = dataFormattata;
+  window.schermataCorrente = { tipo: "giornoLog" };
+  aggiornaCronologia();
 }
 
 // ─────────────────────────────────────────
@@ -2007,6 +2019,7 @@ function apriGuida(nomeEsercizio, schedaId) {
 
   const content = document.getElementById("content");
   window.scrollPrimaGuida = content.scrollTop;
+  window.schermataCorrente = { tipo: "guida", schedaId: schedaId };
 
   let html = `
     <button class="btn-back" onclick="apriScheda('${schedaId}', true)">← Scheda</button>
@@ -2034,6 +2047,7 @@ function apriGuida(nomeEsercizio, schedaId) {
   content.innerHTML = html;
   document.getElementById("page-title").textContent = "Guida";
   document.getElementById("page-subtitle").textContent = nomeEsercizio.replace(" ★", "");
+  aggiornaCronologia();
 }
 
 // ─────────────────────────────────────────
@@ -2503,8 +2517,90 @@ function renderNutriLinee() {
 }
 
 // ─────────────────────────────────────────
+// TASTO "INDIETRO" DEL TELEFONO
+// ─────────────────────────────────────────
+// Fuori dalla home (Oggi) alla cronologia del browser si aggiunge una voce "cuscinetto".
+// Premendo indietro, Android consuma il cuscinetto invece di chiudere l'app e noi risaliamo
+// di un livello, come fa la freccia dentro l'app. Nella home il cuscinetto non c'è:
+// indietro chiude l'app come sempre.
+
+function inHome() {
+  const s = window.schermataCorrente;
+  return !s || (s.tipo === "tab" && s.pagina === "oggi");
+}
+
+function statoCronologia() {
+  return window.history && history.state && history.state.app ? history.state.app : null;
+}
+
+function aggiornaCronologia() {
+  if (!window.history || !history.pushState) return;
+  const stato = statoCronologia();
+  if (inHome()) {
+    if (stato === "buffer") {
+      window.ignoraPopstate = true;
+      history.back();   // toglie il cuscinetto
+    }
+  } else if (stato === "root") {
+    history.pushState({ app: "buffer" }, "");
+  }
+}
+
+// Sale di un livello. Restituisce false se sei già nella home.
+function indietroLogico() {
+  const s = window.schermataCorrente || { tipo: "tab", pagina: "oggi" };
+  switch (s.tipo) {
+    case "guida":
+      apriScheda(s.schedaId, true);
+      return true;
+    case "formCorsa":
+      apriScheda(s.schedaId);
+      return true;
+    case "scheda":
+      if (window.modificaOrdineId === s.id) finisciModificaOrdine(s.id);
+      else navigateTo("schede");
+      return true;
+    case "dettaglioLog":
+    case "giornoLog":
+      navigateTo("log");
+      return true;
+    case "tab":
+      if (s.pagina !== "oggi") {
+        navigateTo("oggi");
+        return true;
+      }
+      return false;
+  }
+  return false;
+}
+
+function gestisciIndietro(evento) {
+  if (window.ignoraPopstate) {
+    window.ignoraPopstate = false;
+    aggiornaCronologia();   // se nel frattempo sei andato altrove, rimette a posto il cuscinetto
+    return;
+  }
+  if (evento.state && evento.state.app === "root") {
+    indietroLogico();
+  }
+}
+
+function inizializzaCronologia() {
+  if (!window.history || !history.replaceState) return;
+  window.addEventListener("popstate", gestisciIndietro);
+  if (statoCronologia() === "buffer") {
+    // L'app è stata riaperta o ricaricata mentre c'era il cuscinetto: si riparte dalla voce iniziale
+    window.ignoraPopstate = true;
+    history.back();
+  } else {
+    history.replaceState({ app: "root" }, "");
+  }
+}
+
+// ─────────────────────────────────────────
 // AVVIO
 // ─────────────────────────────────────────
 
 migraDatiV2();
 richiediStoragePersistente();
+inizializzaCronologia();
