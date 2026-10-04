@@ -988,3 +988,115 @@ body {
   font-weight: 500;
   margin-top: 24px;
 }
+
+/* ═══════════════════════════════════════
+   CONTATORE, ORDINE, STRETCHING
+═══════════════════════════════════════ */
+
+.esercizio-nome {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.contatore {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--surface3);
+  color: var(--text-3);
+  letter-spacing: 0.2px;
+}
+
+.contatore.stallo {
+  background: var(--accent-dim);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.35);
+}
+
+.nota-contatore {
+  font-size: 11px;
+  color: var(--text-3);
+  font-weight: 500;
+  margin: -2px 0 12px;
+  line-height: 1.5;
+}
+
+.sezione-riga {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 24px 0 10px;
+}
+
+.sezione-riga .sezione-titolo {
+  margin: 0;
+}
+
+.btn-ordine {
+  background: var(--surface2);
+  border: 1px solid var(--border-2);
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.riga-ordine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.riga-ordine:last-child {
+  border-bottom: none;
+}
+
+.riga-ordine .riga-nome {
+  flex: 1;
+}
+
+.ordine-frecce {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-freccia {
+  width: 42px;
+  height: 38px;
+  background: var(--surface2);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-freccia:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.riga-stretch-dx {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.btn-timer-sm {
+  padding: 6px 10px;
+  margin-top: 0;
+}
+
+.btn-guida-riga {
+  padding-left: 0;
+  margin-top: 6px;
+}

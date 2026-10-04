@@ -35,14 +35,15 @@ const schede = {
       { nome: "Panca inclinata manubri", muscolo: "Pett. superiori", serie: "10×10 — 10×10 — 8×12", riposo: "90 sec" },
       { nome: "Croci ai cavi alti", muscolo: "Pettorali", serie: "12×7,5 — 12×7,5 — 12×7,5", riposo: "60 sec" },
       { nome: "Military press multipower", muscolo: "Spalle", serie: "12×10 — 10×15 — 10×15 — 8×20", riposo: "90 sec" },
+      { nome: "Shrugs con manubri", muscolo: "Trapezi", serie: "15×14 — 15×14 — 15×14", riposo: "60 sec" },
       { nome: "Alzate laterali in piedi", muscolo: "Deltoide laterale", serie: "15×6 — 12×7 — 12×8", riposo: "60 sec" },
-      { nome: "French press panca piana", muscolo: "Tricipiti", serie: "12×6 — 10×7 — 10×8", riposo: "75 sec" },
       { nome: "Estensione al cavo alto", muscolo: "Tricipiti", serie: "12×17,5 — 12×17,5", riposo: "60 sec" },
+      { nome: "French press panca piana", muscolo: "Tricipiti", serie: "12×6 — 10×7 — 10×8", riposo: "75 sec" },
       { nome: "Face pull al cavo con corda ★", muscolo: "Delt. post. / Rotatori", serie: "15×7,5 — 15×7,5 — 15×10", riposo: "60 sec" }
     ],
     addominali: [
       { nome: "Plank", serie: "3 × 40 sec", riposo: "30 sec" },
-      { nome: "Chiusure a libro gambe piegate", serie: "3 × 20 rip", riposo: "30 sec" }
+      { nome: "Side bend con manubrio", serie: "3 × 15 rip · 6 kg", riposo: "30 sec" }
     ],
     defaticamento: [
       { nome: "Pec stretch al muro", durata: "35 sec/lato", note: "Palmo e avambraccio al muro con gomito a 90°, ruota il busto dall'altra parte" },
@@ -174,6 +175,132 @@ const schede = {
 // ─────────────────────────────────────────
 
 const guide = {
+
+  "Shrugs con manubri": {
+    muscoli: "Trapezio superiore · Elevatore della scapola",
+    esecuzione: "In piedi con un manubrio per mano ai lati del corpo, braccia tese e palmi rivolti verso le cosce. Solleva le spalle in linea retta verso le orecchie, tieni 1 secondo in alto contraendo i trapezi, poi scendi lentamente fino ad abbassare bene le spalle.",
+    postura: "Busto eretto, sguardo in avanti, collo lungo e rilassato. Le braccia restano tese per tutto il movimento e i manubri rimangono ai lati delle cosce, non davanti al corpo.",
+    errori: "Ruotare le spalle in avanti o indietro: il movimento è solo su e giù. Piegare i gomiti e aiutarsi con i bicipiti. Spingere la testa in avanti. Usare un peso troppo alto, che costringe ad accorciare la corsa o a dare slancio con le gambe. Scendere di colpo senza controllo."
+  },
+
+  "Side bend con manubrio": {
+    muscoli: "Obliqui · Quadrato dei lombi",
+    esecuzione: "In piedi, piedi alla larghezza delle spalle, un solo manubrio in una mano lungo la gamba e l'altra mano sul fianco o dietro la testa. Inclina il busto di lato verso il manubrio, facendolo scendere vicino alla coscia fino a sentire lo stiramento sul fianco, poi risali contraendo gli obliqui del lato opposto. Le ripetizioni si fanno per lato: finite quelle di un lato cambia mano.",
+    postura: "Bacino e gambe fermi, busto sempre sullo stesso piano senza piegarsi avanti o indietro. Sguardo avanti, testa in linea con la colonna, addome leggermente contratto. Respira con regolarità.",
+    errori: "Ruotare il busto invece di piegarlo di lato. Spingere il fianco in fuori o piegare le ginocchia. Dondolare il manubrio e usare lo slancio. Usare due manubri insieme: i pesi si annullano a vicenda e il lavoro sugli obliqui si perde. Andare oltre l'ampiezza che riesci a controllare."
+  },
+
+  "Pec stretch al muro": {
+    muscoli: "Pettorali · Deltoide anteriore",
+    esecuzione: "In piedi di fianco a un muro, appoggia palmo e avambraccio con il gomito a 90° all'altezza della spalla. Ruota lentamente il busto dalla parte opposta fino a sentire lo stiramento sul petto e sulla parte anteriore della spalla. Mantieni e respira.",
+    postura: "Spalla bassa, lontana dall'orecchio, busto eretto, bacino fermo. Lo stiramento deve essere deciso ma mai doloroso.",
+    errori: "Alzare la spalla verso l'orecchio. Spingere troppo fino a sentire fastidio nell'articolazione della spalla. Fare rimbalzi. Trattenere il respiro."
+  },
+
+  "Cross-body shoulder stretch": {
+    muscoli: "Deltoide posteriore · Muscoli attorno alla scapola",
+    esecuzione: "In piedi, porta un braccio teso davanti al petto, in orizzontale. Con l'altro braccio tienilo vicino al corpo, appena sopra o sotto il gomito, e accompagnalo delicatamente verso il petto.",
+    postura: "Spalle basse e rilassate, busto eretto, sguardo avanti. Il braccio resta all'altezza della spalla.",
+    errori: "Alzare la spalla verso l'orecchio. Ruotare il busto per aumentare lo stiramento. Premere direttamente sull'articolazione del gomito invece che sul braccio."
+  },
+
+  "Overhead tricep stretch": {
+    muscoli: "Tricipiti · Parte alta dei dorsali",
+    esecuzione: "In piedi o seduto, porta un braccio sopra la testa e piega il gomito, con la mano che scende dietro la nuca tra le scapole. Con l'altra mano spingi delicatamente il gomito verso il basso e indietro.",
+    postura: "Busto eretto, addome leggermente contratto, testa in posizione neutra. Il gomito resta puntato verso l'alto.",
+    errori: "Spingere la testa in avanti. Inarcare la zona lombare. Tirare il gomito con troppa forza."
+  },
+
+  "Child's pose": {
+    muscoli: "Dorsali · Lombari · Glutei",
+    esecuzione: "Inginocchiato, porta i glutei verso i talloni e allunga le braccia in avanti sul pavimento, con la fronte appoggiata a terra. Respira lentamente nell'addome e lascia che la schiena si allunghi.",
+    postura: "Ginocchia leggermente aperte, braccia lunghe, spalle rilassate lontano dalle orecchie.",
+    errori: "Forzare i glutei verso i talloni se il ginocchio dà fastidio: apri di più le ginocchia o metti un cuscino dietro di esse. Sollevare le spalle. Trattenere il respiro."
+  },
+
+  "Bicep stretch": {
+    muscoli: "Bicipiti · Flessori dell'avambraccio",
+    esecuzione: "Tieni un braccio completamente teso lungo il fianco, con il palmo rivolto verso l'esterno e le dita verso il basso. Con l'altra mano spingi delicatamente il palmo all'indietro finché senti lo stiramento nel bicipite e nell'avambraccio.",
+    postura: "Gomito teso ma non bloccato con forza, spalla bassa e busto eretto.",
+    errori: "Piegare il gomito. Alzare la spalla. Spingere con forza invece di aumentare lo stiramento gradualmente."
+  },
+
+  "Ginocchia al petto": {
+    muscoli: "Lombari · Glutei",
+    esecuzione: "Sdraiato sulla schiena, abbraccia entrambe le ginocchia e portale verso il petto. Dondola lentamente da un lato all'altro, restando rilassato.",
+    postura: "Testa e spalle appoggiate a terra, collo lungo, respiro regolare.",
+    errori: "Tirare le ginocchia con troppa forza. Sollevare la testa e le spalle. Trattenere il respiro."
+  },
+
+  "Hip flexor lunge": {
+    muscoli: "Flessori dell'anca · Quadricipiti",
+    esecuzione: "Ginocchio posteriore a terra (se serve su un cuscino), piede anteriore avanti con il ginocchio a 90°. Spingi il bacino in avanti e leggermente in basso mantenendo il busto eretto, finché senti lo stiramento nella parte anteriore dell'anca posteriore.",
+    postura: "Busto alto, addome e gluteo posteriore contratti, bacino in leggera retroversione.",
+    errori: "Inarcare la zona lombare per scendere di più. Inclinare il busto in avanti. Spostare il ginocchio anteriore oltre la punta del piede perdendo l'allineamento."
+  },
+
+  "Hamstring stretch": {
+    muscoli: "Femorali",
+    esecuzione: "Seduto a terra con una gamba tesa e l'altra piegata. Inclinati in avanti dall'anca verso il piede della gamba tesa, tenendo la schiena lunga, finché senti lo stiramento dietro la coscia.",
+    postura: "Punta del piede rivolta verso l'alto, ginocchio disteso ma non bloccato, petto aperto.",
+    errori: "Arrotondare la schiena per arrivare più lontano. Fare rimbalzi. Bloccare il ginocchio con forza."
+  },
+
+  "Piriforme stretch (figura 4)": {
+    muscoli: "Piriforme · Glutei profondi",
+    esecuzione: "Sdraiato sulla schiena con le ginocchia piegate, incrocia una caviglia sopra il ginocchio opposto a formare un 4. Porta poi entrambe le gambe verso il petto, tenendo la coscia con le mani, finché senti uno stiramento profondo nel gluteo della gamba incrociata.",
+    postura: "Testa e spalle a terra, il piede della gamba incrociata resta flesso per proteggere il ginocchio.",
+    errori: "Tirare con troppa forza sul ginocchio. Sollevare la schiena da terra. Lasciare il piede rilassato e il ginocchio storto."
+  },
+
+  "Gastrocnemio al muro": {
+    muscoli: "Polpaccio (gastrocnemio)",
+    esecuzione: "Mani al muro, un piede avanti e uno indietro. La gamba posteriore resta tesa con il tallone a terra e il piede dritto in avanti. Piega il ginocchio anteriore e spingi il bacino verso il muro finché senti lo stiramento nella parte alta del polpaccio posteriore.",
+    postura: "Busto e gamba posteriore in linea, tallone sempre appoggiato, punta del piede in avanti.",
+    errori: "Sollevare il tallone. Ruotare il piede verso l'esterno. Fare rimbalzi."
+  },
+
+  "Soleo al muro": {
+    muscoli: "Polpaccio profondo (soleo)",
+    esecuzione: "Stessa posizione del gastrocnemio, ma con il ginocchio posteriore leggermente piegato e il tallone sempre a terra. Porta il peso in avanti abbassando un poco il bacino finché senti lo stiramento più in basso nel polpaccio, vicino al tendine d'Achille.",
+    postura: "Tallone saldo a terra, piede dritto, busto eretto.",
+    errori: "Sollevare il tallone. Piegare troppo il ginocchio, scaricando lo stiramento. Rimbalzare."
+  },
+
+  "Camminata lenta": {
+    muscoli: "Defaticamento cardiovascolare",
+    esecuzione: "Dopo l'ultimo intervallo continua a camminare a ritmo molto tranquillo, con il respiro che torna regolare e la frequenza cardiaca che scende gradualmente.",
+    postura: "Busto eretto, passo morbido, braccia rilassate, sguardo avanti.",
+    errori: "Fermarsi di colpo. Camminare troppo veloce. Appoggiare le mani sulle ginocchia e chinarsi in avanti."
+  },
+
+  "Quad in piedi": {
+    muscoli: "Quadricipiti · Flessori dell'anca",
+    esecuzione: "In piedi su una gamba, con una mano appoggiata alla macchina o al muro. Piega l'altra gamba e porta il tallone verso il gluteo, afferrando la caviglia. Spingi leggermente il bacino in avanti e inclina un poco il busto per sentire lo stiramento anche sull'anca.",
+    postura: "Ginocchia vicine tra loro, busto eretto, addome contratto.",
+    errori: "Inarcare la zona lombare. Aprire il ginocchio verso l'esterno. Sbilanciarsi senza un appoggio."
+  },
+
+  "Hamstring — piede sulla macchina": {
+    muscoli: "Femorali",
+    esecuzione: "Appoggia un piede sul paraurti o sul cofano a un'altezza comoda, con la gamba tesa e la punta verso l'alto. Inclinati in avanti dal bacino mantenendo la schiena lunga, finché senti lo stiramento dietro la coscia.",
+    postura: "Gamba d'appoggio ben salda a terra, busto lungo, ginocchio teso ma non bloccato. La macchina deve essere ferma e in sicurezza.",
+    errori: "Arrotondare la schiena. Appoggiare il piede troppo in alto. Fare rimbalzi."
+  },
+
+  "Gastrocnemio contro la macchina": {
+    muscoli: "Polpaccio (gastrocnemio)",
+    esecuzione: "Mani appoggiate alla fiancata della macchina, un piede avanti e uno indietro. La gamba posteriore resta tesa con il tallone a terra; piega il ginocchio anteriore e avvicina il bacino alla macchina finché senti lo stiramento nel polpaccio.",
+    postura: "Corpo in linea dalla testa al tallone posteriore, piede dritto in avanti.",
+    errori: "Sollevare il tallone. Ruotare il piede verso l'esterno. Fare rimbalzi."
+  },
+
+  "Soleo contro la macchina": {
+    muscoli: "Polpaccio profondo (soleo)",
+    esecuzione: "Stessa posizione del gastrocnemio, con il ginocchio posteriore leggermente piegato e il tallone sempre a terra. Porta il peso in avanti finché senti lo stiramento più in basso nel polpaccio.",
+    postura: "Tallone saldo a terra, busto eretto, mani sulla fiancata della macchina.",
+    errori: "Sollevare il tallone. Piegare troppo il ginocchio. Rimbalzare."
+  },
 
   "Panca piana manubri ★": {
     muscoli: "Pettorali · Deltoide anteriore · Tricipiti",
@@ -413,6 +540,7 @@ const pagineTitoli = {
 };
 
 function navigateTo(pageId) {
+  window.modificaOrdineId = null;
   const p = pagineTitoli[pageId];
   document.getElementById("page-title").textContent = p.title;
   document.getElementById("page-subtitle").textContent = p.subtitle;
@@ -479,33 +607,31 @@ function renderSchede() {
 function apriScheda(id, ripristinaScroll) {
   const s = schede[id];
   const content = document.getElementById("content");
+  const isPalestra = s.tipo === "palestra";
+  const inModifica = isPalestra && window.modificaOrdineId === id;
 
-  // Pesi salvati (per nome esercizio) e bozza della sessione di oggi, se esiste
-  const pesi = caricaPesiScheda(id);
-  const bozza = caricaBozza(id);
-  let bozzaUtile = false;
+  const risultato = costruisciAttivi(id, s);
+  const attivi = risultato.attivi;
+  const nPrincipali = attivi.filter(e => e.sezione === "esercizi").length;
 
-  const eserciziAttivi = s.esercizi.map(e => {
-    const k = chiaveEsercizio(e.nome);
-    const base = pesi[k] !== undefined ? pesi[k] : e.serie;
-    const inBozza = bozza && bozza.esercizi ? bozza.esercizi[k] : null;
-    const serie = inBozza && typeof inBozza.serie === "string" ? inBozza.serie : base;
-    const completato = inBozza ? !!inBozza.completato : false;
-    if (completato || serie !== base) bozzaUtile = true;
-    return {
-      nome: e.nome,
-      muscolo: e.muscolo,
-      serie: serie,
-      riposo: e.riposo,
-      nota: e.nota || "",
-      completato: completato
-    };
-  });
+  // Stato della sessione in corso
+  window.eserciziSessioneAttiva = attivi;
+  window.schedaAttivaId = id;
+  window.storicoSchedaAttivo = isPalestra ? storicoScheda(id) : [];
 
-  const bannerBozza = bozzaUtile ? `
+  document.getElementById("page-title").textContent = s.nome;
+  document.getElementById("page-subtitle").textContent = inModifica ? "Modifica ordine" : s.sottotitolo;
+
+  if (inModifica) {
+    content.innerHTML = renderModificaOrdine(id, s, attivi);
+    content.scrollTop = 0;
+    return;
+  }
+
+  const bannerBozza = risultato.bozzaUtile ? `
     <div class="nota-bozza">
       <span>Sessione di oggi ripristinata</span>
-      <button onclick="ricominciaSessione('${id}')">Ricomincia</button>
+      <button onclick="ricominciaSessione(${jsArg(id)})">Ricomincia</button>
     </div>
   ` : "";
 
@@ -536,74 +662,33 @@ function apriScheda(id, ripristinaScroll) {
     html += `<div class="nota-pre">▸ ${s.nota_pre}</div>`;
   }
 
-  // ESERCIZI con tracciamento
-  html += `<div class="sezione-titolo">Esercizi</div>`;
-  eserciziAttivi.forEach((e, i) => {
-    html += `
-      <div class="card-esercizio${e.completato ? " completato" : ""}" id="card-ez-${i}">
-        <div class="esercizio-header">
-          <span class="esercizio-num">${i + 1}</span>
-          <div class="esercizio-info">
-            <p class="esercizio-nome">${e.nome}</p>
-            <p class="esercizio-muscolo">${e.muscolo}</p>
-          </div>
-          <p class="esercizio-riposo">⏱ ${e.riposo}</p>
-        </div>
-        <div class="esercizio-tracking">
-          <input
-            type="text"
-            class="input-serie"
-            id="serie-${i}"
-            value="${escAttr(e.serie)}"
-            placeholder="es. 12×10 — 10×12"
-            oninput="salvaBozza()"
-            ${e.completato ? "disabled" : ""}
-          />
-          <div class="tracking-azioni">
-            <button class="btn-timer" onclick="avviaTimer(${secondiDaStringa(e.riposo)})">⏱ Recupero ${e.riposo}</button>
-            <button class="btn-completa" id="btn-completa-${i}" onclick="completaEsercizio(${i}, '${id}')"${e.completato ? ' style="color:#4caf50;border-color:#4caf50"' : ""}>✓ Fatto</button>
-          </div>
-        </div>
-        ${e.nota ? `<p class="esercizio-nota">▸ ${e.nota}</p>` : ""}
-        ${guide[e.nome] ? `<button class="btn-guida" onclick="salvaBozza(); apriGuida('${e.nome}', '${id}')">📖 Come si fa</button>` : ""}
-      </div>
-    `;
+  // ESERCIZI
+  const bottoneOrdine = isPalestra
+    ? `<button class="btn-ordine" onclick="entraModificaOrdine(${jsArg(id)})">↕ Modifica ordine</button>`
+    : "";
+  html += `<div class="sezione-riga"><div class="sezione-titolo">Esercizi</div>${bottoneOrdine}</div>`;
+  if (isPalestra) {
+    html += `<p class="nota-contatore">Il numero ×N indica quante volte di fila hai fatto l'esercizio con gli stessi valori.</p>`;
+  }
+  attivi.forEach((e, i) => {
+    if (e.sezione === "esercizi") html += cardEsercizio(e, i, i + 1, id, isPalestra);
   });
 
   // ADDOMINALI
-  if (s.addominali) {
+  if (attivi.some(e => e.sezione === "addominali")) {
     html += `<div class="sezione-titolo">Addominali</div>`;
-    html += `<div class="blocco">`;
-    s.addominali.forEach(e => {
-      html += `
-        <div class="riga-riscaldamento">
-          <p class="riga-nome">${e.nome}</p>
-          <p class="riga-dose">${e.serie}</p>
-        </div>
-      `;
+    attivi.forEach((e, i) => {
+      if (e.sezione === "addominali") html += cardEsercizio(e, i, i - nPrincipali + 1, id, isPalestra);
     });
-    html += `</div>`;
   }
 
   // DEFATICAMENTO
   html += `<div class="sezione-titolo">Defaticamento</div>`;
-  html += `<div class="blocco">`;
-  s.defaticamento.forEach(e => {
-    html += `
-      <div class="riga-riscaldamento">
-        <div class="riga-left">
-          <p class="riga-nome">${e.nome}</p>
-          ${e.note ? `<p class="riga-nota">${e.note}</p>` : ""}
-        </div>
-        <p class="riga-dose">${e.durata}</p>
-      </div>
-    `;
-  });
-  html += `</div>`;
+  html += righeDefaticamento(s.defaticamento, id);
 
   // BOTTONE CHIUDI SESSIONE
   html += `
-    <button class="btn-chiudi-sessione" id="btn-chiudi" onclick="chiudiSessione('${id}')">
+    <button class="btn-chiudi-sessione" id="btn-chiudi" onclick="chiudiSessione(${jsArg(id)})">
       ✓ Chiudi sessione
     </button>
     <div style="height: 32px;"></div>
@@ -611,51 +696,368 @@ function apriScheda(id, ripristinaScroll) {
 
   content.innerHTML = html;
 
-  // Aggiorna header
-  document.getElementById("page-title").textContent = s.nome;
-  document.getElementById("page-subtitle").textContent = s.sottotitolo;
-
-  // Salva riferimento agli esercizi attivi per questa sessione
-  window.eserciziSessioneAttiva = eserciziAttivi;
-  window.schedaAttivaId = id;
+  attivi.forEach((e, i) => aggiornaContatore(i));
 
   // Se si torna dalla guida, riporta alla stessa posizione; altrimenti in cima
   content.scrollTop = ripristinaScroll && window.scrollPrimaGuida ? window.scrollPrimaGuida : 0;
 }
 
+// Argomento sicuro (anche con apostrofi e virgolette) dentro un onclick="..."
+function jsArg(valore) {
+  return escAttr(JSON.stringify(valore));
+}
+
 // ─────────────────────────────────────────
-// TIMER RECUPERO
+// SCHEDA — costruzione dati e card
+// ─────────────────────────────────────────
+
+// "90 sec" → 90 · "35 sec/lato" → 35 (per lato) · "3–5 min" → 180 · "—" → nessuna durata
+function parseDurata(str) {
+  const m = String(str).match(/(\d+)(?:\s*[–-]\s*\d+)?\s*(sec|min)/i);
+  if (!m) return null;
+  const n = parseInt(m[1], 10);
+  return {
+    secondi: m[2].toLowerCase() === "min" ? n * 60 : n,
+    perLato: /\/\s*(lato|braccio|gamba)/i.test(str)
+  };
+}
+
+// Applica l'ordine personalizzato. I nuovi esercizi non ancora ordinati si inseriscono dopo il loro predecessore.
+function caricaOrdine() {
+  return leggiJSON("ordine_v2", {});
+}
+
+function applicaOrdine(schedaId, sezione, lista) {
+  const salvato = (caricaOrdine()[schedaId] || {})[sezione];
+  if (!Array.isArray(salvato)) return lista.slice();
+
+  const perChiave = {};
+  lista.forEach(e => { perChiave[chiaveEsercizio(e.nome)] = e; });
+
+  const risultato = [];
+  salvato.forEach(k => {
+    const e = perChiave[k];
+    if (e && !risultato.includes(e)) risultato.push(e);
+  });
+
+  lista.forEach((e, i) => {
+    if (risultato.includes(e)) return;
+    let pos = 0;
+    for (let j = i - 1; j >= 0; j--) {
+      const idx = risultato.indexOf(lista[j]);
+      if (idx !== -1) { pos = idx + 1; break; }
+    }
+    risultato.splice(pos, 0, e);
+  });
+
+  return risultato;
+}
+
+function costruisciAttivi(id, s) {
+  const pesi = caricaPesiScheda(id);
+  const bozza = caricaBozza(id);
+  let bozzaUtile = false;
+
+  const crea = (e, sezione) => {
+    const k = chiaveEsercizio(e.nome);
+    const base = pesi[k] !== undefined ? pesi[k] : e.serie;
+    const inBozza = bozza && bozza.esercizi ? bozza.esercizi[k] : null;
+    const serie = inBozza && typeof inBozza.serie === "string" ? inBozza.serie : base;
+    const completato = inBozza ? !!inBozza.completato : false;
+    if (completato || serie !== base) bozzaUtile = true;
+    return {
+      sezione: sezione,
+      nome: e.nome,
+      muscolo: e.muscolo || (sezione === "addominali" ? "Addominali" : ""),
+      serie: serie,
+      riposo: e.riposo,
+      nota: e.nota || "",
+      completato: completato
+    };
+  };
+
+  const principali = applicaOrdine(id, "esercizi", s.esercizi).map(e => crea(e, "esercizi"));
+  const addominali = applicaOrdine(id, "addominali", s.addominali || []).map(e => crea(e, "addominali"));
+  return { attivi: principali.concat(addominali), bozzaUtile: bozzaUtile };
+}
+
+function cardEsercizio(e, i, numero, schedaId, conContatore) {
+  const durataRiposo = parseDurata(e.riposo);
+  const riposoTesto = e.riposo && e.riposo !== "—" ? `<p class="esercizio-riposo">⏱ ${e.riposo}</p>` : "";
+  const contatore = conContatore
+    ? `<span class="contatore" id="cont-${i}" title="Volte di fila con gli stessi valori">×0</span>`
+    : "";
+  const bottoneTimer = durataRiposo
+    ? `<button class="btn-timer" onclick="avviaTimer(${durataRiposo.secondi}, 'RECUPERO')">⏱ Recupero ${e.riposo}</button>`
+    : "";
+  const stileFatto = e.completato ? ' style="color:#4caf50;border-color:#4caf50"' : "";
+
+  return `
+    <div class="card-esercizio${e.completato ? " completato" : ""}" id="card-ez-${i}">
+      <div class="esercizio-header">
+        <span class="esercizio-num">${numero}</span>
+        <div class="esercizio-info">
+          <p class="esercizio-nome">${e.nome}${contatore}</p>
+          <p class="esercizio-muscolo">${e.muscolo}</p>
+        </div>
+        ${riposoTesto}
+      </div>
+      <div class="esercizio-tracking">
+        <input
+          type="text"
+          class="input-serie"
+          id="serie-${i}"
+          value="${escAttr(e.serie)}"
+          placeholder="es. 12×10 — 10×12"
+          oninput="salvaBozza(); aggiornaContatore(${i})"
+          ${e.completato ? "disabled" : ""}
+        />
+        <div class="tracking-azioni">
+          ${bottoneTimer}
+          <button class="btn-completa" id="btn-completa-${i}" onclick="completaEsercizio(${i}, ${jsArg(schedaId)})"${stileFatto}>✓ Fatto</button>
+        </div>
+      </div>
+      ${e.nota ? `<p class="esercizio-nota">▸ ${e.nota}</p>` : ""}
+      ${guide[e.nome] ? `<button class="btn-guida" onclick="salvaBozza(); apriGuida(${jsArg(e.nome)}, ${jsArg(schedaId)})">📖 Come si fa</button>` : ""}
+    </div>
+  `;
+}
+
+function righeDefaticamento(lista, schedaId) {
+  let html = `<div class="blocco">`;
+  lista.forEach(e => {
+    const d = parseDurata(e.durata);
+    html += `
+      <div class="riga-riscaldamento">
+        <div class="riga-left">
+          <p class="riga-nome">${e.nome}</p>
+          ${e.note ? `<p class="riga-nota">${e.note}</p>` : ""}
+          ${guide[e.nome] ? `<button class="btn-guida btn-guida-riga" onclick="salvaBozza(); apriGuida(${jsArg(e.nome)}, ${jsArg(schedaId)})">📖 Come si fa</button>` : ""}
+        </div>
+        <div class="riga-stretch-dx">
+          <p class="riga-dose">${e.durata}</p>
+          ${d ? `<button class="btn-timer btn-timer-sm" onclick="avviaStretch(${jsArg(e.durata)})">⏱ Avvia</button>` : ""}
+        </div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+  return html;
+}
+
+// ─────────────────────────────────────────
+// CONTATORE "VOLTE DI FILA"
+// ─────────────────────────────────────────
+
+const SOGLIA_STALLO = 4;   // da quante volte di fila il numero si evidenzia
+
+// Rende confrontabili "12x14 - 10x14" e "12×14 — 10×14"
+function normalizzaSerie(testo) {
+  return String(testo)
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[–—−]/g, "-")
+    .replace(/x/g, "×")
+    .replace(/\./g, ",");
+}
+
+// Sessioni già registrate di questa scheda, dalla più recente
+function storicoScheda(schedaId) {
+  try {
+    return caricaLog().filter(sessione => sessione.id === schedaId);
+  } catch (err) {
+    console.error("Storico non leggibile:", err);
+    return [];
+  }
+}
+
+// Sessioni consecutive (le più recenti) in cui l'esercizio è stato fatto con esattamente questi valori.
+// Le sessioni in cui non l'hai fatto non contano e non azzerano; una sessione con valori diversi interrompe la serie.
+function volteDiFila(storico, nome, serie) {
+  const chiave = chiaveEsercizio(nome);
+  const target = normalizzaSerie(serie);
+  let n = 0;
+  for (const sessione of storico) {
+    const e = (sessione.esercizi || []).find(x => chiaveEsercizio(x.nome) === chiave);
+    if (!e || !e.completato) continue;
+    if (normalizzaSerie(e.serie) === target) n++;
+    else break;
+  }
+  return n;
+}
+
+function aggiornaContatore(i) {
+  const e = (window.eserciziSessioneAttiva || [])[i];
+  const el = document.getElementById("cont-" + i);
+  if (!e || !el) return;
+  const input = document.getElementById("serie-" + i);
+  const valore = input ? input.value : e.serie;
+  const n = volteDiFila(window.storicoSchedaAttivo || [], e.nome, valore) + (e.completato ? 1 : 0);
+  el.textContent = "×" + n;
+  el.classList.toggle("stallo", n >= SOGLIA_STALLO);
+}
+
+// ─────────────────────────────────────────
+// MODIFICA ORDINE ESERCIZI
+// ─────────────────────────────────────────
+
+function renderModificaOrdine(id, s, attivi) {
+  const sezioni = [
+    { chiave: "esercizi", titolo: "Esercizi" },
+    { chiave: "addominali", titolo: "Addominali" }
+  ];
+
+  let html = `
+    <button class="btn-back" onclick="navigateTo('schede')">← Schede</button>
+    <h2 class="scheda-titolo">${s.nome}</h2>
+    <p class="scheda-sub">Modifica ordine</p>
+    <div class="nota-pre">▸ Usa le frecce per spostare gli esercizi. L'ordine viene salvato subito.</div>
+  `;
+
+  sezioni.forEach(sez => {
+    const voci = attivi.filter(e => e.sezione === sez.chiave);
+    if (voci.length === 0) return;
+    html += `<div class="sezione-titolo">${sez.titolo}</div><div class="blocco">`;
+    voci.forEach((e, k) => {
+      html += `
+        <div class="riga-ordine">
+          <span class="esercizio-num">${k + 1}</span>
+          <p class="riga-nome">${e.nome}</p>
+          <div class="ordine-frecce">
+            <button class="btn-freccia" onclick="spostaEsercizio(${jsArg(id)}, ${jsArg(sez.chiave)}, ${k}, -1)" ${k === 0 ? "disabled" : ""}>▲</button>
+            <button class="btn-freccia" onclick="spostaEsercizio(${jsArg(id)}, ${jsArg(sez.chiave)}, ${k}, 1)" ${k === voci.length - 1 ? "disabled" : ""}>▼</button>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  });
+
+  html += `
+    <button class="btn-primario" style="margin-top:20px" onclick="finisciModificaOrdine(${jsArg(id)})">✓ Fine</button>
+    <button class="btn-azione-profilo" style="margin-top:10px" onclick="ripristinaOrdine(${jsArg(id)})">Ripristina ordine originale</button>
+    <div style="height: 32px;"></div>
+  `;
+  return html;
+}
+
+function entraModificaOrdine(id) {
+  salvaBozza();   // la sessione in corso non si perde
+  window.modificaOrdineId = id;
+  apriScheda(id);
+}
+
+function finisciModificaOrdine(id) {
+  window.modificaOrdineId = null;
+  apriScheda(id);
+}
+
+function spostaEsercizio(schedaId, sezione, indice, direzione) {
+  const content = document.getElementById("content");
+  const scroll = content.scrollTop;
+  const nomi = (window.eserciziSessioneAttiva || [])
+    .filter(e => e.sezione === sezione)
+    .map(e => chiaveEsercizio(e.nome));
+  const nuovo = indice + direzione;
+  if (nuovo < 0 || nuovo >= nomi.length) return;
+
+  const tmp = nomi[indice];
+  nomi[indice] = nomi[nuovo];
+  nomi[nuovo] = tmp;
+
+  const ordine = caricaOrdine();
+  ordine[schedaId] = ordine[schedaId] || {};
+  ordine[schedaId][sezione] = nomi;
+  scriviJSON("ordine_v2", ordine);
+
+  apriScheda(schedaId);
+  content.scrollTop = scroll;
+}
+
+function ripristinaOrdine(schedaId) {
+  if (!confirm("Ripristinare l'ordine originale degli esercizi di questa scheda?")) return;
+  const ordine = caricaOrdine();
+  delete ordine[schedaId];
+  scriviJSON("ordine_v2", ordine);
+  apriScheda(schedaId);
+}
+
+// ─────────────────────────────────────────
+// TIMER (recupero e defaticamento)
 // ─────────────────────────────────────────
 
 let timerInterval = null;
 let timerSecondi = 0;
+let timerFasi = [];
+let timerFaseCorrente = null;
+let timerFine = 0;
 
-function avviaTimer(secondi) {
-  // Se c'è già un timer in corso, fermalo
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
+function vibra(schema) {
+  try {
+    if (navigator.vibrate) navigator.vibrate(schema);
+  } catch (err) { /* non tutti i telefoni la supportano */ }
+}
+
+function avviaTimer(secondi, etichetta) {
+  avviaSequenza([{ sec: secondi, label: etichetta || "RECUPERO", fine: "Via!" }]);
+}
+
+// Defaticamento: per gli esercizi "per lato" fa lato 1, pausa di 5 secondi per cambiare, lato 2
+function avviaStretch(durata) {
+  const d = parseDurata(durata);
+  if (!d) return;
+  const base = "DEFATICAMENTO";
+  if (d.perLato) {
+    avviaSequenza([
+      { sec: d.secondi, label: base + " · LATO 1" },
+      { sec: 5, label: "CAMBIA LATO" },
+      { sec: d.secondi, label: base + " · LATO 2", fine: "Fatto" }
+    ]);
+  } else {
+    avviaSequenza([{ sec: d.secondi, label: base, fine: "Fatto" }]);
+  }
+}
+
+function avviaSequenza(fasi) {
+  fermaTimer();
+  timerFasi = fasi.slice();
+  document.getElementById("timer-banner").classList.add("attivo");
+  iniziaFase();
+  timerInterval = setInterval(timerTick, 250);
+}
+
+function iniziaFase() {
+  timerFaseCorrente = timerFasi.shift();
+  timerFine = Date.now() + timerFaseCorrente.sec * 1000;
+  timerSecondi = timerFaseCorrente.sec;
+  document.getElementById("timer-label").textContent = timerFaseCorrente.label;
+  aggiornaDisplayTimer();
+}
+
+// Il tempo si calcola dall'orologio, quindi resta corretto anche se lo schermo si spegne
+function timerTick() {
+  if (!timerFaseCorrente) return;
+  const restanti = Math.max(0, Math.ceil((timerFine - Date.now()) / 1000));
+  if (restanti !== timerSecondi) {
+    timerSecondi = restanti;
+    aggiornaDisplayTimer();
+  }
+  if (restanti > 0) return;
+
+  if (timerFasi.length > 0) {
+    vibra(200);
+    iniziaFase();
+    return;
   }
 
-  timerSecondi = secondi;
-  aggiornaDisplayTimer();
-
-  // Mostra il banner timer
-  document.getElementById("timer-banner").classList.add("attivo");
-
-  timerInterval = setInterval(() => {
-    timerSecondi--;
-    aggiornaDisplayTimer();
-
-    if (timerSecondi <= 0) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      document.getElementById("timer-display").textContent = "Via!";
-      setTimeout(() => {
-        document.getElementById("timer-banner").classList.remove("attivo");
-      }, 1500);
-    }
-  }, 1000);
+  clearInterval(timerInterval);
+  timerInterval = null;
+  vibra([300, 100, 300]);
+  document.getElementById("timer-display").textContent = timerFaseCorrente.fine || "Via!";
+  timerFaseCorrente = null;
+  setTimeout(() => {
+    if (!timerInterval) document.getElementById("timer-banner").classList.remove("attivo");
+  }, 1500);
 }
 
 function fermaTimer() {
@@ -663,6 +1065,8 @@ function fermaTimer() {
     clearInterval(timerInterval);
     timerInterval = null;
   }
+  timerFasi = [];
+  timerFaseCorrente = null;
   document.getElementById("timer-banner").classList.remove("attivo");
 }
 
@@ -674,9 +1078,8 @@ function aggiornaDisplayTimer() {
 }
 
 function secondiDaStringa(str) {
-  // Converte "90 sec" → 90, "75 sec" → 75, "60 sec" → 60
-  const match = str.match(/(\d+)/);
-  return match ? parseInt(match[1]) : 60;
+  const d = parseDurata(str);
+  return d ? d.secondi : 60;
 }
 
 // ─────────────────────────────────────────
@@ -684,7 +1087,7 @@ function secondiDaStringa(str) {
 // ─────────────────────────────────────────
 
 // Versione dell'app (si vede in fondo al Profilo)
-const APP_VERSION = "2.1";
+const APP_VERSION = "2.2";
 
 // Il nome senza l'eventuale ★ identifica l'esercizio: togliere la stella in futuro non fa perdere i pesi
 function chiaveEsercizio(nome) {
@@ -868,6 +1271,7 @@ function completaEsercizio(index, schedaId) {
     serieInput.disabled = true;
   }
 
+  aggiornaContatore(index);
   salvaBozza();
 }
 
