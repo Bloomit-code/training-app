@@ -3,12 +3,12 @@
 // ─────────────────────────────────────────
 
 const programma = {
-  1: { nome: "G1 — Push", sottotitolo: "Petto · Spalle · Tricipiti", durata: "~65 min", tipo: "palestra" },
-  2: { nome: "Norwegian", sottotitolo: "Interval training VO2max", durata: "~45 min", tipo: "corsa" },
+  1: { nome: "G1 — Push", sottotitolo: "Petto · Spalle · Tricipiti", durata: "~65 min", tipo: "palestra", carico: "medio" },
+  2: { nome: "Norwegian", sottotitolo: "Interval training VO2max", durata: "~45 min", tipo: "corsa", carico: "pesante" },
   3: null, // riposo
-  4: { nome: "Corsa Easy", sottotitolo: "Base aerobica · Zona 2", durata: "~50 min", tipo: "corsa" },
-  5: { nome: "G2 — Pull", sottotitolo: "Schiena · Bicipiti", durata: "~60 min", tipo: "palestra" },
-  6: { nome: "G3 — Legs", sottotitolo: "Gambe · Glutei · Polpacci", durata: "~65 min", tipo: "palestra" },
+  4: { nome: "Corsa Easy", sottotitolo: "Base aerobica · Zona 2", durata: "~50 min", tipo: "corsa", carico: "medio" },
+  5: { nome: "G2 — Pull", sottotitolo: "Schiena · Bicipiti", durata: "~60 min", tipo: "palestra", carico: "medio" },
+  6: { nome: "G3 — Legs", sottotitolo: "Gambe · Glutei · Polpacci", durata: "~65 min", tipo: "palestra", carico: "pesante" },
   0: null  // riposo
 };
 
@@ -131,10 +131,7 @@ const schede = {
       { nome: "Strides", dose: "2 volte", note: "Accelera per 20 sec fino a ~5:30/km, poi cammina 40 sec" }
     ],
     esercizi: [
-      { nome: "Intervallo 1", muscolo: "Build 2' → Max 2' → Walk 2'", serie: "HR build: 145–160 bpm · HR max: >168 bpm", riposo: "Camminata 2 min inclusa" },
-      { nome: "Intervallo 2", muscolo: "Build 2' → Max 2' → Walk 2'", serie: "HR build: 145–160 bpm · HR max: >168 bpm", riposo: "Camminata 2 min inclusa" },
-      { nome: "Intervallo 3", muscolo: "Build 2' → Max 2' → Walk 2'", serie: "HR build: 145–160 bpm · HR max: >168 bpm", riposo: "Camminata 2 min inclusa" },
-      { nome: "Intervallo 4", muscolo: "Build 2' → Max 2' → Walk 2'", serie: "HR build: 145–160 bpm · HR max: >168 bpm", riposo: "Camminata 2 min inclusa" }
+      { nome: "Norwegian — intervalli", muscolo: "Interval training · VO2max", serie: "4 × (3' intensi + 2' jogging)", riposo: "—", editor: "intervalli" }
     ],
     defaticamento: [
       { nome: "Camminata lenta", durata: "3–5 min", note: "Non fermarti di botto dopo l'ultimo intervallo" },
@@ -535,6 +532,7 @@ function renderOggi() {
 const pagineTitoli = {
   oggi:    { title: "Oggi",    subtitle: "" },
   schede:  { title: "Schede",  subtitle: "Tutti gli allenamenti" },
+  nutrizione: { title: "Nutrizione", subtitle: "Piano alimentare" },
   log:     { title: "Log",     subtitle: "Storico sessioni" },
   profilo: { title: "Profilo", subtitle: "I tuoi dati" }
 };
@@ -555,6 +553,8 @@ function navigateTo(pageId) {
     content.innerHTML = renderOggi();
   } else if (pageId === "schede") {
     content.innerHTML = renderSchede();
+  } else if (pageId === "nutrizione") {
+    content.innerHTML = renderNutrizione();
   } else if (pageId === "log") {
     content.innerHTML = renderLog();
   } else if (pageId === "profilo") {
@@ -769,6 +769,7 @@ function costruisciAttivi(id, s) {
       sezione: sezione,
       nome: e.nome,
       muscolo: e.muscolo || (sezione === "addominali" ? "Addominali" : ""),
+      editor: e.editor || "",
       serie: serie,
       riposo: e.riposo,
       nota: e.nota || "",
@@ -803,15 +804,7 @@ function cardEsercizio(e, i, numero, schedaId, conContatore) {
         ${riposoTesto}
       </div>
       <div class="esercizio-tracking">
-        <input
-          type="text"
-          class="input-serie"
-          id="serie-${i}"
-          value="${escAttr(e.serie)}"
-          placeholder="es. 12×10 — 10×12"
-          oninput="salvaBozza(); aggiornaContatore(${i})"
-          ${e.completato ? "disabled" : ""}
-        />
+        ${campoSerie(e, i)}
         <div class="tracking-azioni">
           ${bottoneTimer}
           <button class="btn-completa" id="btn-completa-${i}" onclick="completaEsercizio(${i}, ${jsArg(schedaId)})"${stileFatto}>✓ Fatto</button>
@@ -843,6 +836,84 @@ function righeDefaticamento(lista, schedaId) {
   });
   html += `</div>`;
   return html;
+}
+
+// ─────────────────────────────────────────
+// CAMPO SERIE (testo normale oppure intervalli Norwegian)
+// ─────────────────────────────────────────
+
+function campoSerie(e, i) {
+  if (e.editor === "intervalli") return campoIntervalli(e, i);
+  return `
+        <input
+          type="text"
+          class="input-serie"
+          id="serie-${i}"
+          value="${escAttr(e.serie)}"
+          placeholder="es. 12×10 — 10×12"
+          oninput="salvaBozza(); aggiornaContatore(${i})"
+          ${e.completato ? "disabled" : ""}
+        />
+  `;
+}
+
+// "4 × (3' intensi + 2' jogging)" ⇄ { serie: 4, alta: 3, jogging: 2 }
+function leggiIntervalli(testo) {
+  const m = String(testo).match(/(\d+)\s*[×x]\s*\(\s*(\d+(?:[.,]\d+)?)\D*?\+\s*(\d+(?:[.,]\d+)?)/i);
+  const num = s => parseFloat(String(s).replace(",", "."));
+  if (!m) return { serie: 4, alta: 3, jogging: 2 };
+  return { serie: parseInt(m[1], 10), alta: num(m[2]), jogging: num(m[3]) };
+}
+
+function formattaIntervalli(v) {
+  const f = n => String(n).replace(".", ",");
+  return `${v.serie} × (${f(v.alta)}' intensi + ${f(v.jogging)}' jogging)`;
+}
+
+function riepilogoIntervalli(v) {
+  const totale = v.serie * (v.alta + v.jogging);
+  return `${v.serie} × (${String(v.alta).replace(".", ",")}' + ${String(v.jogging).replace(".", ",")}') = ${String(Math.round(totale * 10) / 10).replace(".", ",")} min di intervalli`;
+}
+
+function campoIntervalli(e, i) {
+  const v = leggiIntervalli(e.serie);
+  const hrmax = caricaDatiProfilo().hrmax;
+  const zone = calcolaZone(hrmax);
+  const fcAlta = Math.round(hrmax * 163 / 186);   // il piano indica "oltre 163 bpm" con HRmax 186
+  const dis = e.completato ? "disabled" : "";
+  const campo = (sigla, etichetta, valore, min, step) => `
+      <label class="campo-intervallo">
+        <span>${etichetta}</span>
+        <input type="number" inputmode="decimal" class="input-intervallo" id="int-${sigla}-${i}"
+          value="${valore}" min="${min}" step="${step}" oninput="aggiornaIntervalli(${i})" ${dis} />
+      </label>`;
+
+  return `
+        <input type="hidden" id="serie-${i}" value="${escAttr(e.serie)}" />
+        <div class="campi-intervalli">
+          ${campo("serie", "Serie", v.serie, 1, 1)}
+          ${campo("alta", "Intensi (min)", v.alta, 0.5, 0.5)}
+          ${campo("jogging", "Jogging (min)", v.jogging, 0.5, 0.5)}
+        </div>
+        <p class="intervalli-riepilogo" id="int-riepilogo-${i}">${riepilogoIntervalli(v)}</p>
+        <p class="intervalli-target">Intensi: zona 4–5, oltre ${fcAlta} bpm · Jogging: zona 2, ${zone[2].min}–${zone[2].max} bpm</p>
+  `;
+}
+
+function aggiornaIntervalli(i) {
+  const leggi = sigla => parseFloat(String(document.getElementById("int-" + sigla + "-" + i).value).replace(",", "."));
+  const v = { serie: Math.round(leggi("serie")), alta: leggi("alta"), jogging: leggi("jogging") };
+  const riepilogo = document.getElementById("int-riepilogo-" + i);
+  const valido = v.serie >= 1 && v.serie <= 30 && v.alta > 0 && v.jogging > 0;
+
+  if (!valido) {
+    // Tiene l'ultimo valore valido finché i campi non sono completi
+    if (riepilogo) riepilogo.textContent = "Inserisci numeri validi (serie, minuti intensi, minuti jogging).";
+    return;
+  }
+  document.getElementById("serie-" + i).value = formattaIntervalli(v);
+  if (riepilogo) riepilogo.textContent = riepilogoIntervalli(v);
+  salvaBozza();
 }
 
 // ─────────────────────────────────────────
@@ -1087,7 +1158,7 @@ function secondiDaStringa(str) {
 // ─────────────────────────────────────────
 
 // Versione dell'app (si vede in fondo al Profilo)
-const APP_VERSION = "2.2";
+const APP_VERSION = "2.3";
 
 // Il nome senza l'eventuale ★ identifica l'esercizio: togliere la stella in futuro non fa perdere i pesi
 function chiaveEsercizio(nome) {
@@ -1271,6 +1342,10 @@ function completaEsercizio(index, schedaId) {
     serieInput.disabled = true;
   }
 
+  card.querySelectorAll(".input-intervallo").forEach(campo => {
+    campo.disabled = !!eserciziAttivi[index].completato;
+  });
+
   aggiornaContatore(index);
   salvaBozza();
 }
@@ -1286,45 +1361,50 @@ function chiudiSessione(schedaId) {
   if (isCorsa) {
     // Mostra form statistiche corsa
     const content = document.getElementById("content");
+    const ultimo = ultimiValoriCorsa(schedaId);
+    const suggerimento = ultimo.data
+      ? "I valori in grigio sono quelli dell'ultima volta (" + new Date(ultimo.data).toLocaleDateString("it-IT", { day: "numeric", month: "long" }) + "). Scrivi quelli di oggi per confrontarli."
+      : "È la prima volta che registri questa corsa: i valori in grigio sono solo esempi.";
     const formHtml = `
       <div class="form-corsa">
         <h2 class="scheda-titolo">Sessione completata 💪</h2>
         <p class="scheda-sub">Inserisci i dati dal Samsung Watch</p>
+        <p class="nota-contatore">${suggerimento}</p>
 
         <div class="sezione-titolo">Statistiche corsa</div>
         <div class="blocco">
           <div class="riga-riscaldamento">
             <p class="riga-nome">Distanza</p>
             <div class="riga-destra">
-              <input type="number" class="input-profilo" id="stat-distanza" placeholder="6.0" step="0.1" min="0" />
+              <input type="number" class="input-profilo" id="stat-distanza" placeholder="${testoPlaceholder(ultimo.distanza, '6,0')}" step="0.1" min="0" />
               <span class="input-unita">km</span>
             </div>
           </div>
           <div class="riga-riscaldamento">
             <p class="riga-nome">Tempo totale</p>
             <div class="riga-destra">
-              <input type="number" class="input-profilo" id="stat-minuti" placeholder="45" step="1" min="0" />
+              <input type="number" class="input-profilo" id="stat-minuti" placeholder="${testoPlaceholder(ultimo.minuti, '45')}" step="1" min="0" />
               <span class="input-unita">min</span>
             </div>
           </div>
           <div class="riga-riscaldamento">
             <p class="riga-nome">FC media</p>
             <div class="riga-destra">
-              <input type="number" class="input-profilo" id="stat-fc-media" placeholder="130" step="1" min="0" />
+              <input type="number" class="input-profilo" id="stat-fc-media" placeholder="${testoPlaceholder(ultimo.fc_media, '130')}" step="1" min="0" />
               <span class="input-unita">bpm</span>
             </div>
           </div>
           <div class="riga-riscaldamento">
             <p class="riga-nome">FC max</p>
             <div class="riga-destra">
-              <input type="number" class="input-profilo" id="stat-fc-max" placeholder="168" step="1" min="0" />
+              <input type="number" class="input-profilo" id="stat-fc-max" placeholder="${testoPlaceholder(ultimo.fc_max, '168')}" step="1" min="0" />
               <span class="input-unita">bpm</span>
             </div>
           </div>
           <div class="riga-riscaldamento">
             <p class="riga-nome">VO2max stimato</p>
             <div class="riga-destra">
-              <input type="number" class="input-profilo" id="stat-vo2max" placeholder="46" step="0.1" min="0" />
+              <input type="number" class="input-profilo" id="stat-vo2max" placeholder="${testoPlaceholder(ultimo.vo2max, '46')}" step="0.1" min="0" />
               <span class="input-unita">ml/kg/min</span>
             </div>
           </div>
@@ -1347,6 +1427,24 @@ function chiudiSessione(schedaId) {
 
   // Sessione palestra — salva direttamente
   completaESalva(schedaId, eserciziAttivi, null);
+}
+
+// Per ogni dato, l'ultimo valore registrato per questa specifica corsa (Norwegian e Corsa Easy sono separate)
+function ultimiValoriCorsa(schedaId) {
+  const res = { distanza: null, minuti: null, fc_media: null, fc_max: null, vo2max: null, data: null };
+  storicoScheda(schedaId).forEach(sessione => {   // dalla più recente
+    const st = sessione.stats;
+    if (!st) return;
+    if (!res.data) res.data = sessione.data;
+    ["distanza", "minuti", "fc_media", "fc_max", "vo2max"].forEach(k => {
+      if (res[k] === null && st[k] !== null && st[k] !== undefined) res[k] = st[k];
+    });
+  });
+  return res;
+}
+
+function testoPlaceholder(valore, esempio) {
+  return valore !== null && valore !== undefined ? String(valore).replace(".", ",") : esempio;
 }
 
 function salvaSessioneCorsa(schedaId) {
@@ -1387,7 +1485,7 @@ function completaESalva(schedaId, eserciziAttivi, stats) {
   const s = schede[schedaId];
 
   const salvaNellaScheda = confirm(
-    "Vuoi aggiornare la scheda con i pesi di oggi?\n\n" +
+    (s.tipo === "corsa" ? "Vuoi aggiornare la scheda con i valori di oggi (minutaggi, durata)?" : "Vuoi aggiornare la scheda con i pesi di oggi?") + "\n\n" +
     "OK → aggiorna la scheda permanente\n" +
     "Annulla → salva solo nel log"
   );
@@ -2049,6 +2147,359 @@ function richiediStoragePersistente() {
   if (navigator.storage && navigator.storage.persist) {
     navigator.storage.persist().catch(() => {});
   }
+}
+
+// ─────────────────────────────────────────
+// PAGINA: NUTRIZIONE
+// ─────────────────────────────────────────
+
+const NUTRI_TIPI = {
+  pesante: { nome: "Pesante", titolo: "Giornata pesante", kcal: 2900, p: 140, c: 410, g: 75, fibra: "35-40 g", acqua: "3,2 L" },
+  medio:   { nome: "Media",   titolo: "Giornata media",   kcal: 2650, p: 140, c: 350, g: 75, fibra: "35-40 g", acqua: "2,8 L" },
+  riposo:  { nome: "Riposo",  titolo: "Giornata di riposo", kcal: 2450, p: 140, c: 295, g: 80, fibra: "35 g",    acqua: "2,5 L" }
+};
+
+// Proteine / carboidrati / grassi in grammi, per tipo di giornata
+const NUTRI_PASTI = [
+  {
+    id: "colazione", nome: "Colazione", ora: "8:30",
+    macro: { pesante: [30, 80, 16], medio: [30, 75, 16], riposo: [32, 70, 18] },
+    nota: "La colazione abituale (yogurt greco, avena, frutta secca, miele, latte parzialmente scremato, ~3 biscotti) è già nei valori di un giorno medio (~30 g proteine, ~75 g carboidrati). Migliorabile: yogurt a ~200 g o un uovo in più per le proteine; nei giorni pesanti aggiungere banana o pane; i biscotti sono il punto più debole (zuccheri aggiunti, poca sazietà)."
+  },
+  {
+    id: "spuntino", nome: "Spuntino", ora: "10:15",
+    macro: { pesante: [5, 40, 2], medio: [5, 30, 2], riposo: null },
+    nota: "Carboidrati veloci e leggeri (frutta o pane con miele), soprattutto prima della Norwegian. Nei giorni medi si può saltare se ci si sente carichi. Non serve nei giorni di riposo."
+  },
+  {
+    id: "pranzo", nome: "Pranzo", ora: "13:00",
+    macro: { pesante: [40, 130, 20], medio: [40, 110, 20], riposo: [38, 100, 22] },
+    nota: "Entro ~45 minuti dalla fine dell'allenamento (13:00-13:20). È il pasto di recupero e il più ricco nei giorni di Norwegian e Legs."
+  },
+  {
+    id: "merenda", nome: "Merenda", ora: "17:00",
+    macro: { pesante: [25, 50, 12], medio: [25, 40, 12], riposo: [30, 40, 14] },
+    nota: "Puntare sulle proteine: yogurt greco o skyr con frutta, ricotta, panino con tacchino o bresaola, uova, frutta secca. Più leggera nei giorni di riposo."
+  },
+  {
+    id: "cena", nome: "Cena", ora: "20:00",
+    macro: { pesante: [40, 110, 25], medio: [40, 95, 25], riposo: [40, 85, 26] },
+    nota: "Dopo Norwegian e Legs più carboidrati (ricarica scorte). Evitare cene molto grasse o abbondanti, che peggiorano il sonno. Se cucina tua madre, vedi il controllo rapido nelle Linee guida."
+  }
+];
+
+const NUTRI_ACQUA_NOTA = "L'acqua include quella durante l'allenamento (~500-700 ml). Distribuzione: ~400 ml a colazione, ~500 ml tra spuntino e allenamento, ~500 ml durante, il resto a piccole dosi nel pomeriggio. Ridurre dopo le 21. Aumentare con il caldo o molta sudorazione.";
+
+// Linee guida generali: { t: titolo, b: blocchi }  ·  blocchi: { p: testo } | { h: sottotitolo } | { ul: [voci] } | { ol: [voci] } | { tab: [[colonna1, colonna2]] }
+const NUTRI_LINEE_GUIDA = [
+  {
+    t: "Strategia generale",
+    b: [
+      { ul: [
+        "Mantenimento calorico, non deficit. Il peso è fermo da mesi mentre i carichi salgono: probabile ricomposizione corporea in corso.",
+        "Niente dieta ipocalorica ora: a ottobre la Norwegian passa al 4×4 classico (salto più duro del percorso) e il deficit peggiorerebbe la resa. Se tra 2-3 mesi si vuole più definizione, si aggiunge un deficit lieve (200-300 kcal).",
+        "Fabbisogno medio stimato: ~2.600-2.800 kcal al giorno (±10%).",
+        "Il BMI non è significativo con questa composizione corporea.",
+        "Approccio flessibile: 80-90% pasti sani, 10-20% libero. Gli sgarri fanno parte del piano."
+      ] }
+    ]
+  },
+  {
+    t: "I quattro principi",
+    b: [
+      { ol: [
+        "Proteine costanti ogni giorno: ~1,8 g/kg (range utile 1,6-2,2), distribuite in 4 pasti da 30-40 g.",
+        "Carboidrati variabili in base al giorno: sono il carburante di Norwegian e Legs.",
+        "Grassi stabili: ~0,9-1 g/kg, soprattutto olio EVO, frutta secca, pesce, uova.",
+        "Il giorno di riposo non è un giorno di dieta: il corpo assorbe l'allenamento. Proteine invariate, si scendono solo un po' i carboidrati."
+      ] }
+    ]
+  },
+  {
+    t: "Da grammi a cibo",
+    b: [
+      { tab: [
+        ["~30 g di proteine", "130-150 g di pollo, tacchino o pesce crudo · 200 g di yogurt greco + 2 uova · 400 g di legumi cotti (con cereali)"],
+        ["~100 g di carboidrati", "130 g di pasta o riso crudo · 200 g di pane · 550-600 g di patate"],
+        ["~30 g di carboidrati", "50 g di avena · 1 banana grande · 60 g di pane"],
+        ["~25 g di grassi", "~3 cucchiai di olio EVO · 30 g di frutta secca + 1 cucchiaio di olio"]
+      ] },
+      { p: "I grammi si intendono sugli alimenti crudi. Le proteine arrivano da tutte le fonti, anche cereali e latticini." }
+    ]
+  },
+  {
+    t: "Quando cucina tua madre (cena)",
+    b: [
+      { p: "Controllo rapido su tre punti, correggendo con merenda o piccole aggiunte:" },
+      { ol: [
+        "C'è una fonte proteica vera (carne, pesce, uova, legumi, formaggio magro)? Se manca, aggiungere yogurt, parmigiano o uova.",
+        "C'è verdura? Se no, recuperarla a pranzo.",
+        "Giorno pesante? Più pasta, riso o pane. Giorno di riposo? Meno carboidrati, più verdura."
+      ] },
+      { p: "Modello semplice del piatto: metà verdura, un quarto proteine, un quarto carboidrati, più un cucchiaio di olio." }
+    ]
+  },
+  {
+    t: "Proteine: cosa scegliere",
+    b: [
+      { ul: [
+        "Pesce: salmone, sgombro, sardine, alici, merluzzo, orata, branzino, tonno al naturale. 2-3 volte a settimana, di cui 1-2 di pesce grasso (omega-3).",
+        "Carni bianche: pollo, tacchino, coniglio.",
+        "Uova: fonte completa, nessun motivo di limite basso per una persona sana.",
+        "Latticini: yogurt greco, skyr, ricotta, fiocchi di latte, parmigiano in piccole quantità.",
+        "Legumi: ceci, lenticchie, fagioli, piselli, 3-4 volte a settimana (contano anche come carboidrati). Tofu e tempeh come varianti.",
+        "Da limitare: carne rossa 1-2 volte a settimana; salumi e carni lavorate solo occasionalmente (bresaola e tacchino a fette vanno bene)."
+      ] }
+    ]
+  },
+  {
+    t: "Carboidrati: cosa scegliere",
+    b: [
+      { ul: [
+        "Base: riso (anche basmati o integrale), pasta (meglio semi-integrale o integrale), avena, farro, orzo, quinoa, patate e patate dolci, pane a lievitazione naturale o integrale.",
+        "Frutta: banana, frutti di bosco, agrumi, mele, kiwi, uva.",
+        "Pre-allenamento: carboidrati facili da digerire (banana, pane con miele, frutta secca a pezzi).",
+        "Post-allenamento: riso, pasta o patate con proteine.",
+        "Da limitare: biscotti industriali, merendine, bibite zuccherate, succhi confezionati, snack dolci."
+      ] }
+    ]
+  },
+  {
+    t: "Grassi: cosa scegliere",
+    b: [
+      { ul: [
+        "Olio extravergine d'oliva: fonte principale, meglio a crudo.",
+        "Frutta secca: noci (più ricche di omega-3), mandorle, nocciole, pistacchi, ~30 g al giorno.",
+        "Semi: lino (macinato), chia, zucca, girasole.",
+        "Altri: avocado, pesce grasso, uova, cioccolato fondente ≥80% in piccole quantità.",
+        "Da limitare: fritti, burro e margarine in eccesso, salumi grassi, snack confezionati."
+      ] }
+    ]
+  },
+  {
+    t: "Verdura e fibra",
+    b: [
+      { p: "400-500 g di verdura al giorno." },
+      { ul: [
+        "Variare colori e tipi: crucifere (broccoli, cavolfiore, cavoli), foglie verdi (spinaci, bietole, rucola), pomodori, peperoni, carote, zucchine, finocchi. 2-3 porzioni di frutta al giorno.",
+        "Metà del piatto a pranzo e cena dovrebbe essere verdura. Più fibra nei pasti lontani dall'allenamento, meno subito prima."
+      ] }
+    ]
+  },
+  {
+    t: "Micronutrienti da tenere d'occhio",
+    b: [
+      { ul: [
+        "Ferro: carne, legumi, spinaci, abbinati a vitamina C (limone, agrumi, peperoni).",
+        "Magnesio e potassio: frutta secca, legumi, banana, patate, verdura a foglia (utili anche per sonno e recupero).",
+        "Calcio: latticini, sardine con lisca, cavoli.",
+        "Vitamina D: da ottobre a marzo a Milano il sole non basta e la dieta copre poco. Valutare di includerla nelle analisi del sangue di routine."
+      ] }
+    ]
+  },
+  {
+    t: "Idratazione e bevande",
+    b: [
+      { p: "Una bottiglia al giorno è insufficiente con 5 sessioni a settimana. Obiettivo: 2-2,5 litri nei giorni normali, più 500-700 ml extra attorno all'allenamento, e di più con il caldo. Controllo pratico: urina giallo chiaro." },
+      { p: "Acqua per la maggior parte. Tè verde o tisane senza zucchero come alternativa (il tè contiene un po' di caffeina: evitarlo nel pomeriggio tardo)." }
+    ]
+  },
+  {
+    t: "Integratori",
+    b: [
+      { p: "Non necessari: l'alimentazione è regolare e completa." },
+      { ul: [
+        "Creatina monoidrato 3-5 g al giorno: l'unico con evidenza solida per forza e recupero. Opzionale, sicura in persone sane.",
+        "Proteine in polvere: solo se non si riescono a raggiungere i grammi con il cibo."
+      ] }
+    ]
+  },
+  {
+    t: "Come verificare che funzioni",
+    b: [
+      { ul: [
+        "Pesarsi 2-3 mattine a settimana nelle stesse condizioni e guardare la media settimanale.",
+        "Se dopo 3-4 settimane la media è stabile (±0,5 kg), l'energia è buona, i carichi salgono e la Norwegian viene completata: non cambiare nulla.",
+        "Se ci si sente scarichi nei giorni pesanti: aggiungere 150-200 kcal di carboidrati.",
+        "Non serve il grammo al millimetro: contano proteine ogni giorno e tipo di giornata (pesante, media, riposo). Tolleranza ±10% sul resto."
+      ] }
+    ]
+  }
+];
+
+const NUTRI_ORDINE_SETTIMANA = [1, 2, 3, 4, 5, 6, 0];
+
+// Quale tipo di giornata vale oggi: scelta a mano (solo per oggi) oppure quella del programma
+function nutriTipoOggi() {
+  const giorno = new Date().getDay();
+  const sessione = programma[giorno] || null;
+  const manuale = leggiJSON("nutri_override", null);
+  if (manuale && manuale.data === dataLocale() && NUTRI_TIPI[manuale.tipo]) {
+    return { tipo: manuale.tipo, manuale: true, giorno: giorno, sessione: sessione };
+  }
+  return { tipo: sessione ? sessione.carico : "riposo", manuale: false, giorno: giorno, sessione: sessione };
+}
+
+// 2900 -> "2.900" (il formato italiano del browser non separa i numeri a 4 cifre)
+function nutriNumero(n) {
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+function renderNutrizione() {
+  window.nutriVista = window.nutriVista || "oggi";
+  const viste = [["oggi", "Oggi"], ["settimana", "Settimana"], ["linee", "Linee guida"]];
+
+  let html = `<div class="log-switcher">` + viste.map(v =>
+    `<button class="log-switch-btn ${window.nutriVista === v[0] ? "attivo" : ""}" onclick="cambiaVistaNutri('${v[0]}')">${v[1]}</button>`
+  ).join("") + `</div>`;
+
+  if (window.nutriVista === "oggi") html += renderNutriOggi();
+  else if (window.nutriVista === "settimana") html += renderNutriSettimana();
+  else html += renderNutriLinee();
+  return html;
+}
+
+function cambiaVistaNutri(vista) {
+  window.nutriVista = vista;
+  const content = document.getElementById("content");
+  content.innerHTML = renderNutrizione();
+  content.scrollTop = 0;
+}
+
+function impostaTipoNutri(tipo) {
+  scriviJSON("nutri_override", { data: dataLocale(), tipo: tipo });
+  document.getElementById("content").innerHTML = renderNutrizione();
+}
+
+function ripristinaTipoNutri() {
+  localStorage.removeItem("nutri_override");
+  document.getElementById("content").innerHTML = renderNutrizione();
+}
+
+function chipMacro(lettera, valore) {
+  return `<span class="chip-macro">${lettera} <b>${valore}</b></span>`;
+}
+
+function renderNutriOggi() {
+  const info = nutriTipoOggi();
+  const t = NUTRI_TIPI[info.tipo];
+  const oggi = new Date();
+  const dataTesto = `${nomiGiorni[info.giorno]} ${oggi.getDate()} ${nomiMesi[oggi.getMonth()]}`;
+  const sessioneTesto = info.sessione ? info.sessione.nome : "Giorno di riposo";
+
+  let html = `<p class="data-oggi">${dataTesto}</p>`;
+
+  html += `
+    <div class="nutri-hero t-${info.tipo}">
+      <p class="nutri-tag">${t.titolo}</p>
+      <h2 class="nutri-sessione">${sessioneTesto}</h2>
+      <p class="nutri-kcal">~${nutriNumero(t.kcal)} <span>kcal</span></p>
+      <div class="nutri-macros">
+        <div class="nutri-macro"><strong>${t.p} g</strong><span>Proteine</span></div>
+        <div class="nutri-macro"><strong>${t.c} g</strong><span>Carboidrati</span></div>
+        <div class="nutri-macro"><strong>${t.g} g</strong><span>Grassi</span></div>
+      </div>
+      <div class="nutri-extra"><span>Fibra ${t.fibra}</span><span>Acqua ${t.acqua}</span></div>
+    </div>
+  `;
+
+  // Cambio manuale del tipo di giornata (i giorni di allenamento possono slittare)
+  html += `<p class="nutri-etichetta">Tipo di giornata</p><div class="log-switcher">` +
+    ["pesante", "medio", "riposo"].map(k =>
+      `<button class="log-switch-btn ${info.tipo === k ? "attivo" : ""}" onclick="impostaTipoNutri('${k}')">${NUTRI_TIPI[k].nome}</button>`
+    ).join("") + `</div>`;
+  html += info.manuale
+    ? `<p class="nutri-nota-tipo">Scelto da te per oggi. <button class="btn-link" onclick="ripristinaTipoNutri()">Torna al programma</button></p>`
+    : `<p class="nutri-nota-tipo">Impostato dal programma della settimana. Se oggi ti alleni in un altro giorno, cambialo qui.</p>`;
+
+  if (info.giorno === 1 || info.giorno === 5) {
+    html += `<div class="nota-pre">▸ Questa sera sposta ~15 g di carboidrati dalla merenda alla cena: domani c'è un allenamento pesante.</div>`;
+  }
+
+  html += `<div class="sezione-titolo">Pasti</div><p class="nutri-legenda">P proteine · C carboidrati · G grassi, in grammi</p>`;
+
+  NUTRI_PASTI.forEach(p => {
+    if (p.id === "pranzo" && info.sessione && info.tipo !== "riposo") {
+      const orario = info.sessione.tipo === "corsa" ? "11:30–12:40 circa" : "11:00–12:45 circa";
+      html += `
+        <div class="card-pasto allenamento">
+          <div class="pasto-head"><p class="pasto-nome">${info.sessione.nome}</p><p class="pasto-ora">${orario}</p></div>
+          <p class="pasto-nota-fissa">Durante la sessione bastano acqua e nient'altro (sotto i 90 minuti). Pranzo entro ~45 minuti dalla fine.</p>
+        </div>
+      `;
+    }
+
+    const m = p.macro[info.tipo];
+    if (!m) {
+      html += `
+        <div class="card-pasto muto">
+          <div class="pasto-head"><p class="pasto-nome">${p.nome}</p><p class="pasto-ora">${p.ora}</p></div>
+          <p class="pasto-nota-fissa">Non serve nei giorni di riposo.</p>
+        </div>
+      `;
+      return;
+    }
+    html += `
+      <div class="card-pasto">
+        <div class="pasto-head"><p class="pasto-nome">${p.nome}</p><p class="pasto-ora">${p.ora}</p></div>
+        <div class="pasto-macros">${chipMacro("P", m[0])}${chipMacro("C", m[1])}${chipMacro("G", m[2])}</div>
+        <details class="pasto-dettagli"><summary>Suggerimenti</summary><p>${p.nota}</p></details>
+      </div>
+    `;
+  });
+
+  html += `
+    <div class="card-pasto">
+      <div class="pasto-head"><p class="pasto-nome">Acqua</p><p class="pasto-ora">${t.acqua}</p></div>
+      <details class="pasto-dettagli"><summary>Come distribuirla</summary><p>${NUTRI_ACQUA_NOTA}</p></details>
+    </div>
+    <div style="height: 32px;"></div>
+  `;
+  return html;
+}
+
+function renderNutriSettimana() {
+  const oggi = new Date().getDay();
+  let html = `<p class="nutri-legenda">Fabbisogno giorno per giorno. P proteine · C carboidrati · G grassi, in grammi.</p><div class="blocco">`;
+
+  NUTRI_ORDINE_SETTIMANA.forEach(g => {
+    const sessione = programma[g] || null;
+    const t = NUTRI_TIPI[sessione ? sessione.carico : "riposo"];
+    html += `
+      <div class="riga-riscaldamento riga-settimana${g === oggi ? " riga-oggi" : ""}">
+        <div class="riga-left">
+          <p class="riga-nome">${nomiGiorni[g]}${g === oggi ? ' <span class="badge-oggi">oggi</span>' : ""}</p>
+          <p class="riga-nota">${sessione ? sessione.nome : "Riposo"} · ${t.nome.toLowerCase()}</p>
+        </div>
+        <div class="settimana-dx">
+          <p class="riga-dose">~${nutriNumero(t.kcal)} kcal</p>
+          <p class="settimana-macro">P ${t.p} · C ${t.c} · G ${t.g}</p>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div><p class="nutri-legenda" style="margin-top:12px">Fibra 35-40 g nei giorni di allenamento (35 g a riposo). Acqua 3,2 L nei giorni pesanti, 2,8 L nei medi, 2,5 L a riposo.</p><div style="height: 32px;"></div>`;
+  return html;
+}
+
+function renderNutriLinee() {
+  let html = "";
+  NUTRI_LINEE_GUIDA.forEach(sez => {
+    html += `<details class="acc"><summary>${sez.t}</summary><div class="acc-body">`;
+    sez.b.forEach(blocco => {
+      if (blocco.p) html += `<p>${blocco.p}</p>`;
+      if (blocco.h) html += `<h4>${blocco.h}</h4>`;
+      if (blocco.ul) html += `<ul>${blocco.ul.map(v => `<li>${v}</li>`).join("")}</ul>`;
+      if (blocco.ol) html += `<ol>${blocco.ol.map(v => `<li>${v}</li>`).join("")}</ol>`;
+      if (blocco.tab) {
+        html += `<div class="acc-tab">${blocco.tab.map(r => `<div class="acc-tab-riga"><strong>${r[0]}</strong><span>${r[1]}</span></div>`).join("")}</div>`;
+      }
+    });
+    html += `</div></details>`;
+  });
+  html += `<div style="height: 32px;"></div>`;
+  return html;
 }
 
 // ─────────────────────────────────────────
