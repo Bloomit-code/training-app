@@ -476,25 +476,44 @@ function renderSchede() {
 // PAGINA: SCHEDA SINGOLA
 // ─────────────────────────────────────────
 
-function apriScheda(id) {
+function apriScheda(id, ripristinaScroll) {
   const s = schede[id];
   const content = document.getElementById("content");
 
-  // Carica pesi salvati o usa quelli di default
-  const eserciziFissi = caricaScheda(id);
-  const eserciziAttivi = s.esercizi.map((e, i) => ({
-    nome: e.nome,
-    muscolo: e.muscolo,
-    serie: eserciziFissi ? eserciziFissi[i].serie : e.serie,
-    riposo: e.riposo,
-    nota: e.nota || "",
-    completato: false
-  }));
+  // Pesi salvati (per nome esercizio) e bozza della sessione di oggi, se esiste
+  const pesi = caricaPesiScheda(id);
+  const bozza = caricaBozza(id);
+  let bozzaUtile = false;
+
+  const eserciziAttivi = s.esercizi.map(e => {
+    const k = chiaveEsercizio(e.nome);
+    const base = pesi[k] !== undefined ? pesi[k] : e.serie;
+    const inBozza = bozza && bozza.esercizi ? bozza.esercizi[k] : null;
+    const serie = inBozza && typeof inBozza.serie === "string" ? inBozza.serie : base;
+    const completato = inBozza ? !!inBozza.completato : false;
+    if (completato || serie !== base) bozzaUtile = true;
+    return {
+      nome: e.nome,
+      muscolo: e.muscolo,
+      serie: serie,
+      riposo: e.riposo,
+      nota: e.nota || "",
+      completato: completato
+    };
+  });
+
+  const bannerBozza = bozzaUtile ? `
+    <div class="nota-bozza">
+      <span>Sessione di oggi ripristinata</span>
+      <button onclick="ricominciaSessione('${id}')">Ricomincia</button>
+    </div>
+  ` : "";
 
   let html = `
     <button class="btn-back" onclick="navigateTo('schede')">← Schede</button>
     <h2 class="scheda-titolo">${s.nome}</h2>
     <p class="scheda-sub">${s.sottotitolo} · ${s.durata}</p>
+    ${bannerBozza}
   `;
 
   // RISCALDAMENTO
@@ -521,7 +540,7 @@ function apriScheda(id) {
   html += `<div class="sezione-titolo">Esercizi</div>`;
   eserciziAttivi.forEach((e, i) => {
     html += `
-      <div class="card-esercizio" id="card-ez-${i}">
+      <div class="card-esercizio${e.completato ? " completato" : ""}" id="card-ez-${i}">
         <div class="esercizio-header">
           <span class="esercizio-num">${i + 1}</span>
           <div class="esercizio-info">
@@ -535,16 +554,18 @@ function apriScheda(id) {
             type="text"
             class="input-serie"
             id="serie-${i}"
-            value="${e.serie}"
+            value="${escAttr(e.serie)}"
             placeholder="es. 12×10 — 10×12"
+            oninput="salvaBozza()"
+            ${e.completato ? "disabled" : ""}
           />
           <div class="tracking-azioni">
             <button class="btn-timer" onclick="avviaTimer(${secondiDaStringa(e.riposo)})">⏱ Recupero ${e.riposo}</button>
-            <button class="btn-completa" id="btn-completa-${i}" onclick="completaEsercizio(${i}, '${id}')">✓ Fatto</button>
+            <button class="btn-completa" id="btn-completa-${i}" onclick="completaEsercizio(${i}, '${id}')"${e.completato ? ' style="color:#4caf50;border-color:#4caf50"' : ""}>✓ Fatto</button>
           </div>
         </div>
         ${e.nota ? `<p class="esercizio-nota">▸ ${e.nota}</p>` : ""}
-        ${guide[e.nome] ? `<button class="btn-guida" onclick="apriGuida('${e.nome}', '${id}')">📖 Come si fa</button>` : ""}
+        ${guide[e.nome] ? `<button class="btn-guida" onclick="salvaBozza(); apriGuida('${e.nome}', '${id}')">📖 Come si fa</button>` : ""}
       </div>
     `;
   });
@@ -597,6 +618,9 @@ function apriScheda(id) {
   // Salva riferimento agli esercizi attivi per questa sessione
   window.eserciziSessioneAttiva = eserciziAttivi;
   window.schedaAttivaId = id;
+
+  // Se si torna dalla guida, riporta alla stessa posizione; altrimenti in cima
+  content.scrollTop = ripristinaScroll && window.scrollPrimaGuida ? window.scrollPrimaGuida : 0;
 }
 
 // ─────────────────────────────────────────
@@ -659,16 +683,128 @@ function secondiDaStringa(str) {
 // STORAGE — salvataggio dati locali
 // ─────────────────────────────────────────
 
-function salvaScheda(id, esercizi) {
-  // Salva i pesi aggiornati nella scheda permanente
-  localStorage.setItem("scheda_" + id, JSON.stringify(esercizi));
+// Versione dell'app (si vede in fondo al Profilo)
+const APP_VERSION = "2.1";
+
+// Il nome senza l'eventuale ★ identifica l'esercizio: togliere la stella in futuro non fa perdere i pesi
+function chiaveEsercizio(nome) {
+  return String(nome).replace(/\s*★\s*/g, "").trim();
 }
 
-function caricaScheda(id) {
-  // Carica i pesi salvati, o usa quelli di default dalla scheda
-  const salvati = localStorage.getItem("scheda_" + id);
-  return salvati ? JSON.parse(salvati) : null;
+function escAttr(valore) {
+  return String(valore)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
+
+function dataLocale(d) {
+  d = d || new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function leggiJSON(chiave, fallback) {
+  try {
+    const grezzo = localStorage.getItem(chiave);
+    return grezzo ? JSON.parse(grezzo) : fallback;
+  } catch (err) {
+    console.error("Lettura fallita:", chiave, err);
+    return fallback;
+  }
+}
+
+function scriviJSON(chiave, valore) {
+  try {
+    localStorage.setItem(chiave, JSON.stringify(valore));
+    return true;
+  } catch (err) {
+    console.error("Scrittura fallita:", chiave, err);
+    return false;
+  }
+}
+
+// ── Pesi fissi della scheda: { g1: { "Panca piana manubri": "12×10 — ..." }, g2: {...} }
+function caricaPesi() {
+  return leggiJSON("pesi_v2", {});
+}
+
+function caricaPesiScheda(id) {
+  return caricaPesi()[id] || {};
+}
+
+function salvaScheda(id, esercizi) {
+  const pesi = caricaPesi();
+  pesi[id] = pesi[id] || {};
+  esercizi.forEach(e => {
+    pesi[id][chiaveEsercizio(e.nome)] = e.serie;
+  });
+  scriviJSON("pesi_v2", pesi);
+}
+
+// Conversione una tantum: copia i vecchi dati "per posizione" (scheda_g1, ...) nel nuovo formato "per nome".
+// I vecchi dati NON vengono toccati.
+function migraDatiV2() {
+  if (localStorage.getItem("pesi_v2") !== null) return;
+
+  const pesi = {};
+  Object.keys(schede).forEach(id => {
+    const vecchi = leggiJSON("scheda_" + id, null);
+    if (!Array.isArray(vecchi)) return;
+    pesi[id] = {};
+    vecchi.forEach(e => {
+      if (e && e.nome && typeof e.serie === "string") {
+        pesi[id][chiaveEsercizio(e.nome)] = e.serie;
+      }
+    });
+  });
+  scriviJSON("pesi_v2", pesi);
+}
+
+// ── Bozza della sessione in corso (una per scheda, valida solo nel giorno in cui nasce)
+function caricaBozza(schedaId) {
+  const bozza = leggiJSON("bozza_" + schedaId, null);
+  if (!bozza || bozza.giorno !== dataLocale()) return null;
+  return bozza;
+}
+
+function sincronizzaDaInput() {
+  const attivi = window.eserciziSessioneAttiva;
+  if (!attivi) return;
+  attivi.forEach((e, i) => {
+    const input = document.getElementById("serie-" + i);
+    if (input) e.serie = input.value;
+  });
+}
+
+function salvaBozza() {
+  const id = window.schedaAttivaId;
+  const attivi = window.eserciziSessioneAttiva;
+  // Salva solo se la scheda e' davvero a schermo
+  if (!id || !attivi || !document.getElementById("card-ez-0")) return;
+
+  sincronizzaDaInput();
+  const esercizi = {};
+  attivi.forEach(e => {
+    esercizi[chiaveEsercizio(e.nome)] = { serie: e.serie, completato: !!e.completato };
+  });
+  scriviJSON("bozza_" + id, { giorno: dataLocale(), aggiornata: Date.now(), esercizi: esercizi });
+}
+
+function eliminaBozza(schedaId) {
+  localStorage.removeItem("bozza_" + schedaId);
+}
+
+function ricominciaSessione(schedaId) {
+  if (!confirm("Azzerare la sessione di oggi? Gli esercizi segnati come fatti e le modifiche non salvate andranno persi.")) return;
+  eliminaBozza(schedaId);
+  apriScheda(schedaId);
+}
+
+// Salva anche quando l'app va in secondo piano (es. cambio app durante l'allenamento)
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") salvaBozza();
+});
 
 function salvaLog(id, nomeSessione, esercizi, stats) {
   const oggi = new Date();
@@ -732,10 +868,13 @@ function completaEsercizio(index, schedaId) {
     serieInput.disabled = true;
   }
 
-  // Il bottone chiudi sessione è sempre visibile, non fare nulla
+  salvaBozza();
 }
 
 function chiudiSessione(schedaId) {
+  // Cio' che vedi nei campi e' cio' che viene salvato, anche per gli esercizi non spuntati
+  sincronizzaDaInput();
+  salvaBozza();
   const eserciziAttivi = window.eserciziSessioneAttiva;
   const s = schede[schedaId];
   const isCorsa = s.tipo === "corsa";
@@ -854,6 +993,7 @@ function completaESalva(schedaId, eserciziAttivi, stats) {
   }
 
   salvaLog(schedaId, s.nome, eserciziAttivi, stats);
+  eliminaBozza(schedaId);
   alert("Sessione completata e salvata 💪");
   navigateTo("oggi");
 }
@@ -1231,6 +1371,8 @@ function renderProfilo() {
       </div>
     </div>
 
+    ${renderBackupProfilo()}
+
     <div class="sezione-titolo">Dati</div>
     <div class="profilo-azioni">
       <button class="btn-azione-profilo btn-export" onclick="esportaLog()">
@@ -1241,6 +1383,7 @@ function renderProfilo() {
       </button>
     </div>
 
+    <p class="profilo-versione">Versione app ${APP_VERSION}</p>
     <div style="height: 32px;"></div>
   `;
 }
@@ -1282,7 +1425,7 @@ function esportaLog() {
 }
 
 function cancellaLog() {
-  const conferma = confirm("Sei sicuro? Tutti i dati del log verranno eliminati definitivamente.");
+  const conferma = confirm("Sei sicuro? Tutti i dati del log verranno eliminati definitivamente.\n\nTi consiglio di scaricare prima un backup dal Profilo.");
   if (!conferma) return;
 
   const chiavi = [];
@@ -1361,9 +1504,10 @@ function apriGuida(nomeEsercizio, schedaId) {
   }
 
   const content = document.getElementById("content");
+  window.scrollPrimaGuida = content.scrollTop;
 
   let html = `
-    <button class="btn-back" onclick="apriScheda('${schedaId}')">← Scheda</button>
+    <button class="btn-back" onclick="apriScheda('${schedaId}', true)">← Scheda</button>
     <h2 class="scheda-titolo">${nomeEsercizio.replace(" ★", "")}</h2>
     <p class="scheda-sub">${guida.muscoli}</p>
 
@@ -1389,3 +1533,123 @@ function apriGuida(nomeEsercizio, schedaId) {
   document.getElementById("page-title").textContent = "Guida";
   document.getElementById("page-subtitle").textContent = nomeEsercizio.replace(" ★", "");
 }
+
+// ─────────────────────────────────────────
+// BACKUP E RIPRISTINO DEI DATI
+// ─────────────────────────────────────────
+
+function renderBackupProfilo() {
+  const ultimo = localStorage.getItem("ultimo_backup");
+  const testo = ultimo
+    ? "Ultimo backup: " + new Date(ultimo).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })
+    : "Nessun backup ancora. Salva una copia di log, pesi e profilo.";
+
+  return `
+    <div class="sezione-titolo">Backup dei dati</div>
+    <p class="profilo-nota-zone">${testo}</p>
+    <div class="profilo-azioni">
+      <button class="btn-azione-profilo btn-export" onclick="scaricaBackup()">
+        💾 Scarica backup
+      </button>
+      <button class="btn-azione-profilo btn-export" onclick="ripristinaBackup()">
+        📥 Ripristina da backup
+      </button>
+    </div>
+  `;
+}
+
+function creaBackup() {
+  const dati = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const chiave = localStorage.key(i);
+    // Le bozze sono temporanee, non servono nel backup
+    if (chiave && !chiave.startsWith("bozza_")) dati[chiave] = localStorage.getItem(chiave);
+  }
+  return { app: "training-app", versione: 2, creato: new Date().toISOString(), dati: dati };
+}
+
+function scaricaBackup() {
+  const backup = creaBackup();
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "backup_training_" + dataLocale() + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  localStorage.setItem("ultimo_backup", backup.creato);
+  navigateTo("profilo");
+}
+
+// Valida il testo di un backup e ne restituisce il contenuto (lancia un errore se non e' valido)
+function leggiBackup(testo) {
+  let backup;
+  try {
+    backup = JSON.parse(testo);
+  } catch (err) {
+    throw new Error("Il file non e' un backup valido.");
+  }
+  if (!backup || backup.app !== "training-app" || !backup.dati || typeof backup.dati !== "object") {
+    throw new Error("Questo file non e' un backup di Training App.");
+  }
+  return backup;
+}
+
+function applicaBackup(backup) {
+  let scritti = 0;
+  Object.keys(backup.dati).forEach(chiave => {
+    if (typeof backup.dati[chiave] === "string") {
+      localStorage.setItem(chiave, backup.dati[chiave]);
+      scritti++;
+    }
+  });
+  return scritti;
+}
+
+function ripristinaBackup() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json,.json";
+  input.onchange = () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const lettore = new FileReader();
+    lettore.onload = () => {
+      let backup;
+      try {
+        backup = leggiBackup(lettore.result);
+      } catch (err) {
+        alert(err.message);
+        return;
+      }
+      const quanti = Object.keys(backup.dati).length;
+      const ok = confirm(
+        "Ripristinare " + quanti + " elementi (log, pesi, profilo)?\n\n" +
+        "Quelli gia' presenti con lo stesso nome o la stessa data verranno sostituiti. Gli altri restano."
+      );
+      if (!ok) return;
+      applicaBackup(backup);
+      alert("Backup ripristinato.");
+      location.reload();
+    };
+    lettore.readAsText(file);
+  };
+  input.click();
+}
+
+// Chiede al browser di non cancellare i dati dell'app se il telefono ha poco spazio
+function richiediStoragePersistente() {
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().catch(() => {});
+  }
+}
+
+// ─────────────────────────────────────────
+// AVVIO
+// ─────────────────────────────────────────
+
+migraDatiV2();
+richiediStoragePersistente();

@@ -949,3 +949,42 @@ body {
 ═══════════════════════════════════════ */
 
 .spacer { height: 32px; }
+
+/* ═══════════════════════════════════════
+   BOZZA SESSIONE E VERSIONE
+═══════════════════════════════════════ */
+
+.nota-bozza {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.nota-bozza button {
+  background: none;
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.profilo-versione {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-3);
+  font-weight: 500;
+  margin-top: 24px;
+}
